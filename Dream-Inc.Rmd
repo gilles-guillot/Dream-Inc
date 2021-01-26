@@ -4,6 +4,7 @@ subtitle: "Dream Inc."
 author: "Gilles Guillot"
 output: ioslides_presentation
 date: "2021-02-03"
+bibliography: [/home/gilles/Dropbox/Work/com/bibtex/biblio.bib, /home/gilles/Dropbox/Work/com/bibtex/gilles.bib]
 ---
 
 ```{r setup, include=FALSE}
@@ -63,33 +64,11 @@ CI_prop_B <- comp_CI_prop(dat$failure[dat$treatment=="1.5"] ,
                                alpha = 0.05, # 1-(nominal coverage)
                                method=c("normal","Wilson","Wilson_cc","CP"))
 CI_prop_B
-
-CI_diff_prop <- Comp_CI_diff_prop(e=c(sum(dat$failure[dat$treatment=="1.4"],na.rm = TRUE),
-                                      sum(dat$failure[dat$treatment=="1.5"],na.rm = TRUE)),
-                                  n= c(length(na.omit(dat$failure[dat$treatment=="1.4"])), 
-                                       length(na.omit(dat$failure[dat$treatment=="1.5"]))),
+CI_diff_prop <- Comp_CI_diff_prop(e=c(sum(dat$failure[dat$treatment=="1.5"],na.rm = TRUE),
+                                      sum(dat$failure[dat$treatment=="1.4"],na.rm = TRUE)),
+                                  n= c(length(na.omit(dat$failure[dat$treatment=="1.5"])), 
+                                       length(na.omit(dat$failure[dat$treatment=="1.4"]))),
                                   alpha=0.1) 
-CI_diff_prop
-
-nrun <- seq(1,3e+6,1000)
-Cu <- 43000
-cf <- 2.32
-Cu/(cf*(pA-pB))
-C <- tibble(nrun=nrun,
-            mean_update=Cu + cf*nrun*pB,
-            min_update= Cu + cf*nrun*CI_prop_B$CI_CP[1],
-            max_update= Cu + cf*nrun*CI_prop_B$CI_CP[2],
-            mean_no_update= cf*nrun*pA,
-            min_no_update= cf*nrun*CI_prop_A$CI_CP[1],
-            max_no_update= cf*nrun*CI_prop_A$CI_CP[2],)
-C <- C %>% setDT()
-
-
-C <- melt(C, id=1, measure=patterns("^mean","^min","^max", cols=names(C)), 
-     value.name=c("mean","min","max"), variable.name="decision")
-C$decision = as.factor(C$decision)
-levels(C$decision) <- c("update","no_update")
-C  
 ```
 
 ## Observed failure rates
@@ -99,29 +78,80 @@ C
 
 * $p_B=$ `r signif(pB*100,dig=3)`% with version 1.5.
 
-## Uncertainty analysis
+* $p_B- p_A=$ `r signif((pB-pA)*100,dig=2)`% 
+
+## Uncertainty in failure rate estimates
 
 * Failure rates estimated on limited samples.
 
 * Uncertainty attached to observed failure rates captured by confidence intervals:
-    + $CI_{0.95}(p_A)=$ [ `r signif(100*CI_prop_A$CI_CP[1],3)` `r signif(100*CI_prop_A$CI_CP[2],3)`]
-    + $CI_{0.95}(p_B)=$ [ `r signif(100*CI_prop_B$CI_CP[1],3)` `r signif(100*CI_prop_B$CI_CP[2],3)`]
+    + $CI_{0.95}(p_A)=$ [ `r signif(100*CI_prop_A$CI_CP[1],3)` , `r signif(100*CI_prop_A$CI_CP[2],3)`]
+    + $CI_{0.95}(p_B)=$ [ `r signif(100*CI_prop_B$CI_CP[1],3)` , `r signif(100*CI_prop_B$CI_CP[2],3)`]
+    + $CI_{0.95}(p_B-p_A)=$ [ `r signif(100*CI_diff_prop$LL_ARR,3)` , `r signif(100*CI_diff_prop$UL_ARR,3)`]
     
-    
-## Significanc of the association version-failure
+* We can not confidently rule out the hypothesis that the reduction in failure rate was observed by chance
+
+## Association version-failure
 
 
 * Fisher exact test 
 
-* Null hypothesis: independence of joint distribution (version,failure)
+* Null hypothesis: independence of joint distribution [version,failure]
 
 * p-value = `r signif(f_test$p.value,dig=2)`
 
-* We can not rule out the hypothesis that the difference was observed by chance
+* We can not confidently rule out the hypothesis that the association was observed by chance
     
     
+## Relevance of statistical testing theory in present context    
+
+
+* Testing theory relevant to control type I error (asymetric situation)
+
+* Here **in absence of specific knowledge about update and failure costs**, choosing version 1.5 over 1.4 or vice versa are equivalent
+
+## Uncertainty of financial cost
+
+$C_B -C_A = C_u + C_f \times n \times (p_B - p_A)$
+
+$CI(C_B -C_A) = C_u + C_f \times n \times CI(p_B - p_A)$
+
+$C_A$, $C_B$ cost under scenario $A$ and $B$
+
+$C_u$ cost update
+
+$C_f$ cost individual failure
+
+$n$ number of runs
+
+
+## Uncertainty of financial cost (cont')
+```{r reabons, echo=FALSE}
+nrun <- seq(1,5e+6,1000)
+Cu <- 43000
+cf <- 2.32
+C <- tibble(nrun=nrun,
+            cost_diff = Cu + cf*nrun*(pB-pA),
+            cost_diff_low = Cu + cf*nrun*CI_diff_prop$LL_ARR,
+            cost_diff_up = Cu + cf*nrun*CI_diff_prop$UL_ARR)
     
+p <- ggplot(C,aes(x=nrun,y=cost_diff,min=cost_diff_low,ymax=cost_diff_up)) + 
+  geom_line(color = "#C4961A") +  
+  geom_ribbon(alpha=0.2,fill = "#C4961A") + 
+  xlab("Number of runs") + ylab("Predicted cost difference in $") + 
+  scale_color_hue(l=40, c=35)
+p
+```
     
+   
+## Appendix: confidence interval for a difference of proportions
+
+* Many methods exist, all approximate or based on assumptions
+
+* @newcombe1998interval reviewed eleven methods 
+
+* method based on the Wilson score @wilson1927probable appears as the best combination between computational convenienence and accuracy. 
+
     
-    
+## References
 
