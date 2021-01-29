@@ -112,17 +112,23 @@ CI_diff_prop <- Comp_CI_diff_prop(e=c(sum(dat$failure[dat$treatment=="1.5"],na.r
 
 ## Uncertainty of financial cost
 
-$C_B -C_A = C_u + C_f \times n \times (p_B - p_A)$
+Denoting 
 
-$CI(C_B -C_A) = C_u + C_f \times n \times CI(p_B - p_A)$
+* $C_A$, $C_B$ cost under scenario $A$ and $B$, 
 
-$C_A$, $C_B$ cost under scenario $A$ and $B$
+* $C_u$ cost update, 
 
-$C_u$ cost update
+ * $C_f$ cost individual failure, 
 
-$C_f$ cost individual failure
+* $n$ number of runs
 
-$n$ number of runs
+Then 
+
+* $C_B -C_A = C_u + C_f \times n \times (p_B - p_A)$
+
+* $CI(C_B -C_A) = C_u + C_f \times n \times CI(p_B - p_A)$
+
+
 
 
 ## Uncertainty of financial cost (cont')
@@ -138,11 +144,16 @@ C <- tibble(nrun=nrun,
 p <- ggplot(C,aes(x=nrun,y=cost_diff,min=cost_diff_low,ymax=cost_diff_up)) + 
   geom_line(color = "#C4961A") +  
   geom_ribbon(alpha=0.2,fill = "#C4961A") + 
-  xlab("Number of runs") + ylab("Predicted cost difference in $") + 
+  xlab("Number of robot runs") + ylab("Predicted cost difference (in $)") + 
   scale_color_hue(l=40, c=35)
 p
 ```
-    
+ 
+## Recommendation:     
+
+* If $n> C_u/C_f(p_A-p_B)$ (=`r signif(Cu/(cf*(pA-pB)),dig=3)`), then update from v1.4 to v1.5.
+
+* Else do nothing
    
 ## Appendix: confidence interval for a difference of proportions
 
@@ -150,7 +161,7 @@ p
 
 * @newcombe1998interval reviewed eleven methods 
 
-* method based on the Wilson score @wilson1927probable appears as the best combination between computational convenienence and accuracy. 
+* Method based on the Wilson score @wilson1927probable appears as the best combination between computational convenience and accuracy. 
 
     
 ## References
