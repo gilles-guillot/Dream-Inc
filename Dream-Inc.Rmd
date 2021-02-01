@@ -151,7 +151,7 @@ p
  
 ## Recommendation:     
 
-* If $n> C_u/C_f(p_A-p_B)$ (=`r signif(Cu/(cf*(pA-pB)),dig=3)`), then update from v1.4 to v1.5.
+* Uupdate software if $n> C_u/C_f(p_A-p_B)$ (`r signif(Cu/(cf*(pA-pB)),dig=3)`)
 
 * Else do nothing
    
@@ -163,6 +163,10 @@ p
 
 * Method based on the Wilson score @wilson1927probable appears as the best combination between computational convenience and accuracy. 
 
-    
 ## References
+
+Full R code: 
+[github.com/gilles-guillot/Dream-Inc](github.com/gilles-guillot/Dream-Inc)
+    
+
 
