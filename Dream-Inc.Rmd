@@ -151,7 +151,7 @@ p
  
 ## Recommendation:     
 
-* Uupdate software if $n> C_u/C_f(p_A-p_B)$ (`r signif(Cu/(cf*(pA-pB)),dig=3)`)
+* Update software if $n> C_u/C_f(p_A-p_B)$ (`r signif(Cu/(cf*(pA-pB)),dig=3)`)
 
 * Else do nothing
    
